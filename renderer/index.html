@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' data: blob:; img-src 'self' data: blob: https: http:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self' data:; frame-src 'self' data: blob:; connect-src 'self' data: https: http:;" />
+  <title>LearnCanvas</title>
+  <link rel="stylesheet" href="../node_modules/katex/dist/katex.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="../node_modules/marked/lib/marked.umd.js"></script>
+  <script src="../node_modules/katex/dist/katex.min.js"></script>
+  <script src="../node_modules/marked-katex-extension/lib/index.umd.js"></script>
+  <script src="../node_modules/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar" class="sidebar">
+      <div class="sb-head">
+        <span class="brand-dot"></span>
+        <span class="brand-name">LearnCanvas</span>
+        <button id="btnSidebarClose" class="sb-collapse" title="收起侧栏">
+          <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="15" height="13" rx="2.5"/><path d="M8 3.5v13"/></svg>
+        </button>
+      </div>
+
+      <div class="sb-actions">
+        <button id="btnNewSession" class="sb-new">
+          <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M10 4.5v11M4.5 10h11"/></svg>
+          新建对话
+        </button>
+      </div>
+
+      <div class="sb-label">
+        <span>对话</span>
+        <button id="btnImportSession" class="sb-mini" title="导入对话（JSON）">
+          <svg viewBox="0 0 20 20" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13V3.5M6.5 7L10 3.5 13.5 7"/><path d="M3.5 13.5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2"/></svg>
+        </button>
+      </div>
+      <div id="sessionList" class="sb-list"></div>
+
+      <div class="sb-foot">
+        <button id="btnSettings" class="sb-settings">
+          <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="2.6"/><path d="M10 2.8l1.3 1.9h2.3l.5 2.3 2 1.1-1 2.1 1 2.1-2 1.1-.5 2.3h-2.3L10 17.2l-1.3-1.9H6.4l-.5-2.3-2-1.1 1-2.1-1-2.1 2-1.1.5-2.3h2.3z"/></svg>
+          设置
+        </button>
+        <span class="brand-sub" id="modelChip">deepseek-flash</span>
+      </div>
+    </aside>
+
+    <main id="workspace">
+      <button id="btnSidebarOpen" class="sidebar-open-btn" title="展开侧栏">
+        <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="15" height="13" rx="2.5"/><path d="M8 3.5v13"/></svg>
+      </button>
+
+      <section id="canvasPane">
+        <div class="ink">
+          <button id="inkBall" class="ink-ball" title="画笔">
+            <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13.4 3.6a1.6 1.6 0 0 1 2.3 0l.7.7a1.6 1.6 0 0 1 0 2.3l-7.6 7.6-3.4.9.9-3.4 7.1-8.1z"/><path d="M11.9 5.1l3 3"/></svg>
+          </button>
+          <div id="inkPanel" class="ink-panel">
+            <div class="ink-col" id="inkColors">
+              <button class="ink-color" data-color="#2b2f36" style="--c:#2b2f36" title="墨黑"></button>
+              <button class="ink-color" data-color="#d0453e" style="--c:#d0453e" title="红"></button>
+              <button class="ink-color" data-color="#2f6fd0" style="--c:#2f6fd0" title="蓝"></button>
+              <button class="ink-color" data-color="#2e8b57" style="--c:#2e8b57" title="绿"></button>
+              <button class="ink-color" data-color="#e3b23c" style="--c:#e3b23c" title="黄"></button>
+            </div>
+            <div class="ink-sep"></div>
+            <div class="ink-col" id="inkWidths">
+              <button class="ink-dot" data-w="2" title="细"><i style="width:4px;height:4px"></i></button>
+              <button class="ink-dot" data-w="4" title="中"><i style="width:7px;height:7px"></i></button>
+              <button class="ink-dot" data-w="7" title="粗"><i style="width:11px;height:11px"></i></button>
+              <button class="ink-dot" data-w="11" title="很粗"><i style="width:16px;height:16px"></i></button>
+            </div>
+            <div class="ink-sep"></div>
+            <div class="ink-col">
+              <button id="inkUndo" class="ink-ico" title="撤销">
+                <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 6L3.5 9.5 7 13"/><path d="M3.5 9.5h7.8a5 5 0 0 1 0 10H9"/></svg>
+              </button>
+              <button id="inkClear" class="ink-ico" title="清空">
+                <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 6.5h11M8 6.5V4.8h4v1.7M6 6.5l.7 9.2h6.6l.7-9.2"/></svg>
+              </button>
+              <button id="inkDone" class="ink-ico done" title="退出画笔（Esc）">
+                <svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 10.5l3.4 3.4 7.6-8"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="canvas" class="canvas"></div>
+
+        <div id="selPill" class="sel-pill hidden">
+          <span class="sel-pill-dot"></span>
+          <span id="selPillText">引用给 AI</span>
+          <kbd>⏎</kbd>
+        </div>
+
+        <div id="peek" class="peek hidden"></div>
+
+        <div id="floatDock" class="float-dock hidden">
+          <div id="floatHost"></div>
+        </div>
+      </section>
+
+      <div id="splitter" class="splitter"><span></span></div>
+
+      <aside id="chatPane" class="chat-pane">
+        <div class="chat-head">
+          <div class="chat-title">
+            <span class="chat-title-text">导师对话</span>
+            <span class="chat-status" id="chatStatus"></span>
+          </div>
+          <div class="chat-head-actions">
+            <span class="usage-chip" id="usageChip" hidden></span>
+            <button class="icon-btn voice-toggle" id="btnVoiceInput" title="语音输入：按住空格说话" aria-pressed="false">
+              <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7.6" y="2.8" width="4.8" height="8.4" rx="2.4"/><path d="M4.8 9.5a5.2 5.2 0 0 0 10.4 0"/><path d="M10 14.7v2.5"/><path d="M7.4 17.2h5.2"/></svg>
+              <i class="vt-dot"></i>
+            </button>
+            <button class="icon-btn voice-toggle" id="btnVoiceOutput" title="语音朗读：AI 自动朗读回答" aria-pressed="false">
+              <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8v4h2.6L11 15.4V4.6L6.6 8H4z"/><path d="M13.4 7.2a4 4 0 0 1 0 5.6"/><path d="M15.6 5a7 7 0 0 1 0 10"/></svg>
+              <i class="vt-dot"></i>
+            </button>
+            <button class="icon-btn" id="btnStop" title="停止" hidden>■</button>
+            <button class="icon-btn" id="btnCollapseInline" title="折叠对话">
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 5.5L7 10l5.5 4.5"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div id="messages" class="messages"></div>
+
+        <div id="composerWrap" class="composer-wrap">
+          <div id="chips" class="chips"></div>
+          <div id="composer" class="composer">
+            <button id="attachBtn" class="attach-btn" title="添加图片">
+              <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M10 4.5v11M4.5 10h11"/></svg>
+            </button>
+            <textarea id="input" rows="1" placeholder="说说想学什么，或框选左侧内容…"></textarea>
+            <button id="sendBtn" class="send-btn" title="发送 (⏎)">
+              <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15.5v-11M5 9.5L10 4.5l5 5"/></svg>
+            </button>
+          </div>
+          <div class="think-bar">
+            <span class="think-label">思考强度</span>
+            <div class="seg" id="thinkSeg">
+              <button type="button" data-think="off" title="关闭思考，最快">关闭</button>
+              <button type="button" data-think="low">低</button>
+              <button type="button" data-think="medium">中</button>
+              <button type="button" data-think="high">高</button>
+            </div>
+          </div>
+          <div class="composer-hint">Enter 发送 · Shift+Enter 换行 · ⌘B 折叠对话</div>
+        </div>
+
+        <div id="rail" class="rail">
+          <button class="rail-expand" id="btnExpandRail" title="展开对话">
+            <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 5.5L13 10l-5.5 4.5"/></svg>
+          </button>
+          <div class="rail-label">对话已折叠</div>
+          <div class="rail-snippet" id="railSnippet"></div>
+          <div class="rail-foot"><span class="rail-dot" id="railDot"></span></div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div id="voiceOrb" class="voice-orb hidden">
+    <div class="orb-ring"></div>
+    <div class="orb-halo"></div>
+    <div class="orb-core">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="orb-tip" id="voiceOrbTip">松手发送</div>
+  </div>
+
+  <input type="file" id="fileInput" accept="image/*" multiple hidden />
+
+  <div id="settingsModal" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2>设置</h2>
+        <button class="icon-btn" id="btnCloseSettings">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="sec">
+          <div class="sec-label">外观</div>
+          <div class="sec-grid">
+            <div class="field">
+              <span>主题</span>
+              <div class="theme-split" id="themeSplit">
+                <button type="button" data-theme-value="light">亮色</button>
+                <button type="button" data-theme-value="dark">暗色</button>
+              </div>
+            </div>
+            <label class="field field-check">
+              <div>
+                <span>详细信息</span>
+                <span class="field-sub">显示每句对话的 Token 用量与缓存命中</span>
+              </div>
+              <input id="setDetails" type="checkbox" class="switch" />
+            </label>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-label">模型服务</div>
+          <label class="field">
+            <span>API Base URL</span>
+            <input id="setBaseUrl" type="text" placeholder="https://api.deepseek.com/v1" spellcheck="false" />
+          </label>
+          <div class="sec-grid">
+            <label class="field">
+              <span>API Key</span>
+              <input id="setApiKey" type="password" placeholder="sk-…" spellcheck="false" />
+            </label>
+            <label class="field">
+              <span>模型</span>
+              <input id="setModel" type="text" placeholder="deepseek-flash" spellcheck="false" />
+            </label>
+          </div>
+          <label class="field field-slider">
+            <div class="field-slider-head">
+              <span>温度</span>
+              <output id="tempOut">0.6</output>
+            </div>
+            <input id="setTemperature" type="range" min="0" max="1.5" step="0.1" />
+          </label>
+        </div>
+
+        <div class="sec">
+          <div class="sec-label">语音</div>
+          <label class="field field-check">
+            <div>
+              <span>语音输入</span>
+              <span class="field-sub">按住空格说话并发送（识别后自动填入）</span>
+            </div>
+            <input id="setVoiceInput" type="checkbox" class="switch" />
+          </label>
+          <label class="field field-check">
+            <div>
+              <span>语音朗读</span>
+              <span class="field-sub">AI 每轮对话都会把回答读出来</span>
+            </div>
+            <input id="setVoiceOutput" type="checkbox" class="switch" />
+          </label>
+          <div class="sec-grid">
+            <label class="field">
+              <span>朗读引擎</span>
+              <select id="setTtsEngine">
+                <option value="edge">Edge 在线语音（最自然·最快）</option>
+                <option value="kokoro">Kokoro 本地语音（离线·轻快）</option>
+                <option value="melo">Melo 本地语音（离线）</option>
+                <option value="system">系统语音（离线兜底）</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>音色</span>
+              <select id="setTtsVoice">
+                <option value="">自动选择</option>
+              </select>
+            </label>
+          </div>
+          <label class="field field-slider">
+            <div class="field-slider-head">
+              <span>语速</span>
+              <output id="speedOut">1.0</output>
+            </div>
+            <input id="setTtsSpeed" type="range" min="0.6" max="1.5" step="0.05" />
+          </label>
+          <div class="field-row voice-settings-foot">
+            <button class="tb" id="btnPreviewVoice">试听</button>
+            <button class="tb" id="btnVoiceDownload" hidden>下载模型</button>
+            <span class="field-sub" id="voiceStatusLine">检查语音模型…</span>
+          </div>
+          <div class="voice-progress" id="voiceProgress" hidden><i></i></div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-label">Agent</div>
+          <label class="field">
+            <span>工作目录（文件与命令的根目录）</span>
+            <div class="field-row">
+              <input id="setWorkdir" type="text" spellcheck="false" />
+              <button class="tb" id="btnPickWorkdir">选择…</button>
+            </div>
+          </label>
+          <label class="field">
+            <span>aggrsearch 可执行文件路径（留空使用内置）</span>
+            <input id="setSearchBin" type="text" spellcheck="false" placeholder="bin/aggrsearch" />
+          </label>
+          <div class="modal-tip">
+            AI 拥有读写文件、执行命令、联网搜索等工具权限，工作目录默认为
+            <code id="workdirHint"></code>。设置会立即保存到本机。
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="tb primary" id="btnSaveSettings">完成</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="canvas.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

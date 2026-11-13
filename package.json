@@ -1,0 +1,21 @@
+{
+  "name": "learncanvas",
+  "version": "0.1.0",
+  "description": "AI 全权掌控画布的学习软件（Electron）",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^33.4.11",
+    "katex": "^0.16.47",
+    "marked": "^12.0.2",
+    "marked-katex-extension": "^5.1.13",
+    "mermaid": "^11.17.2",
+    "sherpa-onnx-node": "^2.0.1",
+    "ws": "^8.18.0"
+  }
+}

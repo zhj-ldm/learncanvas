@@ -1,0 +1,10 @@
+node_modules/
+dist/
+out/
+release/
+*.log
+.DS_Store
+tmp/
+.shot/
+shot_tmp.js
+.trae-html-share-packages/
