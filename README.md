@@ -6,6 +6,8 @@ LearnCanvas 是一款基于 Electron 的桌面 AI 学习应用。它把「画布
 
 > 本项目使用 TRAE 完成从架构设计、编码到调试的全过程开发，参加 TRAE 好应用大奖赛。
 
+**下载安装（macOS · Apple Silicon）**：[Releases](https://github.com/zhj-ldm/learncanvas/releases/latest) 下载 `LearnCanvas-0.1.0-arm64.dmg` → 拖入「应用程序」→ 首次打开若提示未验证开发者，右键「打开」或执行 `xattr -cr /Applications/LearnCanvas.app`。
+
 ## 核心特色
 
 - **AI 掌舵画布**：不是「聊天 + 富文本」，而是 AI 通过结构化指令增删改画布内容。
