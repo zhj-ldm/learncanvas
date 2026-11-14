@@ -1,0 +1,51 @@
+name: Build Windows
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Package for Windows
+        shell: pwsh
+        run: |
+          $version = node -p "require('./package.json').version"
+          echo "APP_VERSION=$version" >> $env:GITHUB_ENV
+          npx --yes electron-packager@18 . LearnCanvas `
+            --platform=win32 `
+            --arch=x64 `
+            --out=dist `
+            --overwrite `
+            --app-version=$version `
+            '--ignore=^/node_modules/electron($|/)' `
+            '--ignore=^/dist($|/)' `
+            '--ignore=^/\.git($|/)' `
+            '--ignore=^/\.github($|/)' `
+            '--ignore=^/\.trae($|/)'
+          Compress-Archive -Path dist/LearnCanvas-win32-x64/* -DestinationPath "LearnCanvas-$version-win-x64.zip"
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.APP_VERSION }}
+          files: LearnCanvas-*-win-x64.zip
+          fail_on_unmatched_files: true

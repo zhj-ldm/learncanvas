@@ -268,6 +268,9 @@ function run(cmd, args, timeout = 30000) {
 
 /* macOS 系统语音兜底：say → aiff → wav(int16) */
 async function systemSay(text, speed, voice) {
+  if (process.platform !== 'darwin') {
+    return { ok: false, error: '系统语音仅支持 macOS，请使用 Edge 或本地语音引擎' };
+  }
   const base = path.join(os.tmpdir(), 'learncanvas-say-' + Date.now());
   const aiff = base + '.aiff';
   const wav = base + '.wav';
