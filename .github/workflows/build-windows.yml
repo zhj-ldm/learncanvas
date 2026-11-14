@@ -30,7 +30,7 @@ jobs:
         run: |
           $version = node -p "require('./package.json').version"
           echo "APP_VERSION=$version" >> $env:GITHUB_ENV
-          npx --yes electron-packager@18 . LearnCanvas `
+          npx --yes @electron/packager@latest . LearnCanvas `
             --platform=win32 `
             --arch=x64 `
             --out=dist `
@@ -41,6 +41,7 @@ jobs:
             '--ignore=^/\.git($|/)' `
             '--ignore=^/\.github($|/)' `
             '--ignore=^/\.trae($|/)'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Compress-Archive -Path dist/LearnCanvas-win32-x64/* -DestinationPath "LearnCanvas-$version-win-x64.zip"
 
       - name: Upload to release
